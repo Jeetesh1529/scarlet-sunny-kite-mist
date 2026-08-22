@@ -79,6 +79,14 @@ const grokIssuer = env("GROK_AUTH_ISSUER") ?? GROK_ISSUER_DEFAULT;
 const grokClientId = env("GROK_AUTH_CLIENT_ID") ?? PREVIEW_CLIENT_ID;
 const grokClientSecret = env("GROK_AUTH_CLIENT_SECRET") ?? PREVIEW_CLIENT_SECRET;
 
+// Standalone Google OAuth (your OWN Google Cloud client) — works on ANY host,
+// no broker. When GOOGLE_CLIENT_ID/SECRET are set the app signs in via Better
+// Auth's native Google provider (redirect `/api/auth/callback/google`); the
+// broker below is only the fallback used when these are absent (e.g. preview).
+const googleClientId = env("GOOGLE_CLIENT_ID");
+const googleClientSecret = env("GOOGLE_CLIENT_SECRET");
+export const googleNativeEnabled = Boolean(googleClientId && googleClientSecret);
+
 /** True when federated sign-in is active (real auth is enforced). */
 export const authConfigured =
   !authDisabled && Boolean(grokClientId && grokClientSecret);
@@ -175,6 +183,21 @@ export const auth = betterAuth({
   // globalThis so HMR doesn't invalidate PGLite-backed sessions (see above).
   secret: env("BETTER_AUTH_SECRET") ?? previewAuthSecret(),
   database,
+
+  // Standalone Google (your own client). Present only when GOOGLE_CLIENT_ID/
+  // SECRET are set; then the client uses `signIn.social({ provider: "google" })`
+  // and Google redirects back to `/api/auth/callback/google`.
+  ...(googleNativeEnabled
+    ? {
+        socialProviders: {
+          google: {
+            clientId: googleClientId as string,
+            clientSecret: googleClientSecret as string,
+            prompt: "select_account" as const,
+          },
+        },
+      }
+    : {}),
 
   // CSRF / origin check for credentialed auth POSTs (email sign-up/sign-in, …).
   // See `trustedOrigins` construction above — must cover live preview hosts AND

@@ -30,6 +30,14 @@ export const authClient = createAuthClient({
  */
 export const authEnabled = import.meta.env.VITE_AUTH_ENABLED !== "false";
 
+/**
+ * When true, sign-in uses this app's OWN Google client (Better Auth native
+ * `signIn.social`), which works on any host. Set `VITE_GOOGLE_NATIVE=true`
+ * alongside the server's GOOGLE_CLIENT_ID/SECRET. Otherwise sign-in federates
+ * through the broker (preview default).
+ */
+export const googleNative = import.meta.env.VITE_GOOGLE_NATIVE === "true";
+
 /** The upstream providers to render sign-in buttons for. */
 export { GROK_PROVIDERS };
 
@@ -95,6 +103,25 @@ export async function signIn(
 ): Promise<void> {
   const callbackURL = opts.callbackURL ?? "/";
   const errorCallbackURL = opts.errorCallbackURL ?? "/";
+
+  // Standalone Google (our own client): a normal Better Auth social redirect to
+  // Google and back to `/api/auth/callback/google`. No broker, no popup.
+  if (googleNative) {
+    try {
+      await authClient.signOut();
+    } catch {
+      /* nothing to clear */
+    }
+    setBearerToken(null);
+    const { data, error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL,
+      errorCallbackURL,
+    });
+    if (error) throw new Error(error.message ?? "Sign-in failed");
+    if (data?.url) window.location.href = data.url;
+    return;
+  }
 
   // Open the popup SYNCHRONOUSLY on the user gesture — before any await
   // (including signOut). Awaiting first drops user-gesture privilege in some
