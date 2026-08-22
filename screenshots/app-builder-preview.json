@@ -1,0 +1,35 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "QXio",
+      "hasCanvas": false,
+      "bodyTextLen": 8,
+      "bodyTextHash": "b450645debe2cf0a590edd7f78d36eccd465027d389652dc30d6350542587c04",
+      "bodyTextPrefix": "Contacts",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "QXio",
+      "hasCanvas": false,
+      "bodyTextLen": 188,
+      "bodyTextHash": "42b1010d31865ff0e6f02f19b8ebcc627c20372e3c1b324f4952a06d99b2d0e7",
+      "bodyTextPrefix": "QXio BLAST FROM THE PAST Sign In Create Account Continue with Go",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

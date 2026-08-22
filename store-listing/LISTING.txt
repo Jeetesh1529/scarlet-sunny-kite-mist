@@ -1,0 +1,53 @@
+QXio — Play Store & App Store listing
+=====================================
+
+Name: QXio
+Subtitle (iOS, 30 chars): Blast From The Past
+Short description (Play, 80 chars):
+Free chat, rooms and games. GPRS when you have no data bundle.
+
+Full description:
+QXio is a South African messenger revival. Contacts, moods, Cape Town / Jozi / Durbs zones, rooms that feel occupied, and games you can challenge a friend to.
+
+Chat send and receive is free on a data bundle. No bundle? Tiny GPRS packets from airtime (~1–2c to Vodacom, MTN or Cell C). SMS is last resort (~80c).
+
+Moola is earned in-app (welcome bonus, daily claim, streaks) and spends on extras like Skinz and Emoticards. Moola is not sold for real money and cannot be cashed out.
+
+14 or older. Block, report, nickname, copy / reply / delete. Your QXio ID is unique.
+
+Games: Moonbase, Chess, Connect 4, Tic-Tac-Toe, Skip-Bo.
+
+Category
+  Play: Communication
+  App Store: Social Networking
+
+Age: 14+
+In-app purchases: None
+Ads: None
+Keywords: chat, messenger, south africa, rooms, moola, gprs, games
+
+Console URLs (after you Publish QXio, prefix with your live https:// host)
+  Privacy:  /legal/privacy
+  Terms:    /legal/terms
+  Support:  /legal/support
+  Delete:   /legal/delete
+  Get app:  /get
+
+Play Data safety (answers)
+  Collects: email, name, user ID, messages, photos/voice you send,
+            zone, optional phone, optional age/gender
+  Purpose: app functionality
+  Shared with other users: messages and public profile (not sold)
+  Encrypted in transit: yes
+  Users can delete: yes — Settings and /legal/delete
+  Account creation: yes
+
+What you still need (cannot be done inside this preview)
+  1. Publish QXio so it has a public https URL.
+  2. Google Play Console — one-time developer registration (South Africa is supported).
+  3. Apple Developer Program — yearly membership, then App Store Connect.
+  4. Paste this listing, upload icon-1024.png, feature-graphic.png, and the screenshots.
+  5. Android wrapper is a Trusted Web Activity of the published URL.
+     iPhone wrapper is a store build of the same published URL.
+
+Install that already works: Add to Home Screen from /get (iPhone Share, Android Install app).

@@ -1,0 +1,37 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "QXio",
+      "hasCanvas": false,
+      "bodyTextLen": 22,
+      "bodyTextHash": "fe7e8ec30275527e8ec3c410855a90f5f16544e5e060a5b7a5ea19232f5af685",
+      "bodyTextPrefix": "CONNECTING TAP TO SKIP",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "QXio",
+      "hasCanvas": false,
+      "bodyTextLen": 22,
+      "bodyTextHash": "fe7e8ec30275527e8ec3c410855a90f5f16544e5e060a5b7a5ea19232f5af685",
+      "bodyTextPrefix": "CONNECTING TAP TO SKIP",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}
