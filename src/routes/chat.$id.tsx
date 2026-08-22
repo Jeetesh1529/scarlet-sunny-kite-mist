@@ -10,9 +10,8 @@ import { useMxit } from "@/components/mxit/provider";
 import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { clipGprs, defaultRadioMode, type RadioMode } from "@/lib/gprs";
-import { loadConversation, pollConversation, sendDirect, setTyping, deleteMessage } from "@/lib/mxit/fns";
+import { loadConversation, pollConversation, waitConversation, sendDirect, setTyping, deleteMessage } from "@/lib/mxit/fns";
 import type { ChatMessage, ConversationView } from "@/lib/mxit/types";
-import { useVisiblePoll } from "@/lib/mxit/use-visible-poll";
 import { zoneById } from "@/lib/mxit/zones";
 import { enqueueAirtime } from "@/lib/sms-queue";
 import { clipSms, openSmsCompose, radioOnline } from "@/lib/sms";
@@ -75,6 +74,19 @@ function ChatPage() {
     };
   }, []);
 
+  const applyIncoming = useCallback((r: { messages: ChatMessage[]; typing: boolean }) => {
+    if (r.messages.length) afterId.current = r.messages.at(-1)!.id;
+    setData((d) => {
+      if (!d) return d;
+      const meId = meIdRef.current;
+      const msgs = r.messages.length ? mergeIncoming(d.messages, r.messages, meId) : d.messages;
+      if (r.messages.some((m) => m.sender_id !== meId)) expectBot.current = false;
+      const typing = r.typing || expectBot.current;
+      if (msgs === d.messages && d.typing === typing) return d;
+      return { ...d, messages: msgs, typing };
+    });
+  }, []);
+
   const pull = useCallback(
     async (full = false) => {
       try {
@@ -86,21 +98,12 @@ function ChatPage() {
           return;
         }
         const r = await pollConversation({ data: { convId: id, afterId: afterId.current } });
-        if (r.messages.length) afterId.current = r.messages.at(-1)!.id;
-        setData((d) => {
-          if (!d) return d;
-          const meId = meIdRef.current;
-          const msgs = r.messages.length ? mergeIncoming(d.messages, r.messages, meId) : d.messages;
-          if (r.messages.some((m) => m.sender_id !== meId)) expectBot.current = false;
-          const typing = r.typing || expectBot.current;
-          if (msgs === d.messages && d.typing === typing) return d;
-          return { ...d, messages: msgs, typing };
-        });
+        applyIncoming(r);
       } catch {
         if (full) navigate({ to: "/" });
       }
     },
-    [id, navigate],
+    [id, navigate, applyIncoming],
   );
 
   useEffect(() => {
@@ -111,11 +114,34 @@ function ChatPage() {
     void pull(true);
   }, [id, pull]);
 
-  useVisiblePoll(() => {
-    if (!loaded.current) return;
-    if (radio === "sms" && offline) return;
-    return pull(false);
-  }, radio === "gprs" ? 8000 : 2000, [id, pull, radio, offline]);
+  // Long-poll loop: hold a request open (waitConversation) and reconnect, instead
+  // of hammering the server every 2s. Idle chats then use almost no mobile data.
+  useEffect(() => {
+    let stopped = false;
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const loop = async () => {
+      while (!stopped) {
+        const paused =
+          !loaded.current ||
+          (typeof document !== "undefined" && document.hidden) ||
+          (radio === "sms" && offline);
+        if (paused) {
+          await sleep(1000);
+          continue;
+        }
+        try {
+          const r = await waitConversation({ data: { convId: id, afterId: afterId.current } });
+          if (!stopped) applyIncoming(r);
+        } catch {
+          if (!stopped) await sleep(2500);
+        }
+      }
+    };
+    void loop();
+    return () => {
+      stopped = true;
+    };
+  }, [id, radio, offline, applyIncoming]);
 
   if (isPending) return <div className="flex-1" />;
   if (!user) return <RedirectToSignIn />;

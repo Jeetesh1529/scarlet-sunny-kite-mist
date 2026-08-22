@@ -6,8 +6,9 @@ export function RatesCard({ className = "" }: { className?: string }) {
     <section className={`space-y-2 ${className}`}>
       <div className="text-[12px] font-medium uppercase tracking-wide text-white/80">Rates · Then vs now</div>
       <p className="text-[12px] leading-relaxed text-white/70">
-        The OG app ran cheap over GPRS (~1–2c from airtime) so you could skip ~80c SMS. QXio still does that —
-        plus bundle chat is free. Moola is only for extras.
+        The OG app rode cheap 2G GPRS off airtime. On today's phones that channel is gone — chat here is normal
+        mobile data, and QXio adds no charge (a fraction of a cent of data per message). Lean mode keeps it tiny;
+        SMS is the only no-data fallback (~80c, your network). Moola is only for extras.
       </p>
       <div className="overflow-hidden rounded-lg border border-white/15">
         <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-white/10 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-white/55">
@@ -22,7 +23,7 @@ export function RatesCard({ className = "" }: { className?: string }) {
           >
             <span className="text-white/85">{row.item}</span>
             <span className="text-white/50">{row.then}</span>
-            <span className={/FREE|QXio R0|1–2c to network/i.test(row.now) ? "font-semibold text-emerald-300" : "text-white/85"}>
+            <span className={/FREE/i.test(row.now) ? "font-semibold text-emerald-300" : "text-white/85"}>
               {row.now}
             </span>
           </div>

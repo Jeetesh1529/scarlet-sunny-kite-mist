@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ingestSms, readInbound, smsWebhookAuthorized } from "@/lib/mxit/sms-inbound";
+import { smsOutboundEnabled } from "@/lib/mxit/sms-out";
 
 async function handlePost({ request }: { request: Request }) {
   if (!smsWebhookAuthorized(request)) {
@@ -46,6 +47,18 @@ export const Route = createFileRoute("/api/sms")({
           radio: "gsm",
           accept: "text only — no pictures, no files",
           format: "QX their_qxio_id your message",
+          inbound: {
+            configured: !!(
+              (typeof process !== "undefined" &&
+                (process.env.SMS_WEBHOOK_SECRET || process.env.TWILIO_AUTH_TOKEN)) ||
+              false
+            ),
+            hint: "POST here from your SMS aggregator (Africa's Talking / Twilio / Clickatell). Set SMS_WEBHOOK_SECRET and send it as header x-qxio-sms-secret (or ?secret=).",
+          },
+          outbound: {
+            enabled: smsOutboundEnabled(),
+            hint: "Set SMS_OUTBOUND=1 plus a provider (AT_*/TWILIO_*/CLICKATELL_*) to deliver SMS to handsets that have no data.",
+          },
         }),
       POST: handlePost,
     },

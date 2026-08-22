@@ -21,10 +21,10 @@ import { useMxit } from "./provider";
 export function AuthScreen({ needsProfile = false, intent }: { needsProfile?: boolean; intent?: "signup" }) {
   const { refresh } = useMxit();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup">(needsProfile || intent === "signup" ? "signup" : "login");
+  const [mode] = useState<"login" | "signup">(needsProfile || intent === "signup" ? "signup" : "login");
   const [step, setStep] = useState<"auth" | "profile">(needsProfile ? "profile" : "auth");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email] = useState("");
+  const [password] = useState("");
   const [mxitId, setMxitId] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [moodCode, setMoodCode] = useState(":)");
@@ -204,23 +204,9 @@ export function AuthScreen({ needsProfile = false, intent }: { needsProfile?: bo
 
         {step === "auth" && (
           <>
-            <div className="flex rounded-2xl border border-white/12 bg-black/25 p-1">
-              {(["login", "signup"] as const).map((m) => (
-                <button
-                  type="button"
-                  key={m}
-                  onClick={() => {
-                    setMode(m);
-                    setStep("auth");
-                    sfx.tap();
-                  }}
-                  className={`flex-1 rounded-xl py-2.5 text-[13px] font-semibold capitalize transition ${
-                    mode === m ? "bg-white text-[#0A1B3D] shadow-sm" : "text-white/55 hover:text-white"
-                  }`}
-                >
-                  {m === "login" ? "Sign in" : "Create account"}
-                </button>
-              ))}
+            <div className="text-center">
+              <h2 className="text-lg font-semibold text-white">Sign in to {APP_NAME}</h2>
+              <p className="mt-1 text-xs text-white/50">Continue with Google — new here or coming back, it's the same button.</p>
             </div>
             {authEnabled && (
               <div className="space-y-2">
@@ -230,47 +216,13 @@ export function AuthScreen({ needsProfile = false, intent }: { needsProfile?: bo
                     type="button"
                     disabled={oauthBusy !== null}
                     onClick={() => oauth(p.providerId)}
-                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/8 text-sm font-medium text-white transition hover:bg-white/14 active:scale-[0.98] disabled:opacity-60"
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white text-sm font-semibold text-[#0A1B3D] transition hover:bg-white/92 active:scale-[0.98] disabled:opacity-60"
                   >
                     {oauthBusy === p.providerId ? "Redirecting…" : `Continue with ${p.label}`}
                   </button>
                 ))}
               </div>
             )}
-            <div className="flex items-center gap-3 py-0.5">
-              <div className="h-px flex-1 bg-white/12" />
-              <span className="text-[10px] uppercase tracking-[0.28em] text-white/35">or email</span>
-              <div className="h-px flex-1 bg-white/12" />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="email" className="text-xs text-white/65">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className={field}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="password" className="text-xs text-white/65">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                minLength={6}
-                className={field}
-              />
-            </div>
           </>
         )}
 
@@ -442,13 +394,15 @@ export function AuthScreen({ needsProfile = false, intent }: { needsProfile?: bo
           </>
         )}
 
-        <Button
-          type="submit"
-          disabled={busy || ((needsProfile || (mode === "signup" && step === "profile")) && idStatus === "bad")}
-          className="h-12 w-full rounded-xl bg-white text-[15px] font-semibold text-[#0A1B3D] hover:bg-white/92"
-        >
-          {busy ? "…" : mode === "login" ? "Sign in" : step === "auth" ? "Continue" : "Create my ID"}
-        </Button>
+        {(needsProfile || step === "profile") && (
+          <Button
+            type="submit"
+            disabled={busy || idStatus === "bad"}
+            className="h-12 w-full rounded-xl bg-white text-[15px] font-semibold text-[#0A1B3D] hover:bg-white/92"
+          >
+            {busy ? "…" : "Create my ID"}
+          </Button>
+        )}
         {mode === "signup" && step === "profile" && !needsProfile && (
           <Button
             type="button"

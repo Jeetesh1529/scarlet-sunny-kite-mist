@@ -23,8 +23,8 @@ export function botReply(botId: string, text: string, displayName: string): stri
   if (botId === "bot-joe-banker") {
     if (/cost|price|free|charge|rate|sms|airtime|gprs|data|bundle/.test(t))
       return pick([
-        "No bundle? Tap the radio in chat — GPRS packets from airtime, about 1–2c to the network. Same trick the OG app used.",
-        "Three paths: bundle chat is free, GPRS is ~1–2c airtime, SMS is the ~80c last resort. QXio takes nothing.",
+        "Low on data? Tap the radio for lean mode — text-only, tiny packets. Still uses a little data though. Truly no data? SMS fallback.",
+        "Three paths: data chat is free (tiny data), lean mode is smaller still, SMS is the ~80c no-data fallback. QXio takes nothing.",
         "Moola is for extras: Skinz and Emoticards. Messages never spend it.",
       ]);
     if (/moola|money|coins|broke|gift/.test(t))
@@ -47,7 +47,7 @@ export function botReply(botId: string, text: string, displayName: string): stri
     if (/chat|message/.test(t))
       return "Tap a friend in Contacts, then the Chat soft-key. Send and receive is free — no Moola per message.";
     if (/cost|price|free|charge|rate|gprs|airtime|sms|bundle/.test(t))
-      return "No bundle: tap the radio in chat for GPRS (~1–2c airtime, like the OG app). SMS is ~80c last resort. Bundle chat is free. Moola is only for Skinz and Emoticards.";
+      return "Low data: tap the radio for lean mode — text-only, tiny packets (still a little data). No data at all? SMS fallback (~80c, your network). Data chat is free. Moola is only for Skinz and Emoticards.";
     if (/moola/.test(t)) return "Menu isn't needed — claim daily from the Contacts banner, or visit QX Banker. Chat doesn't spend Moola.";
     return pick([
       "Menu (bottom left) has Profile, Settings, Add contact and Logout.",

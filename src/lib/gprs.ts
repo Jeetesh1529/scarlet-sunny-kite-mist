@@ -1,12 +1,18 @@
 /**
- * OG-app-style GPRS: a tiny packet over the phone's packet radio, billed from
- * airtime — not a data bundle, not SMS. Same idea as 2005–2010 (~1–2c
- * to Vodacom / MTN / Cell C). QXio takes R0.
+ * "Lean" mode — a nod to the OG app's GPRS trick. It keeps a message as small
+ * as possible: text only, clipped to GPRS_LIMIT chars, one tiny packet.
+ *
+ * HONESTY NOTE: on the OG app (2G feature phones) these packets were billed
+ * ~1–2c straight off airtime, no bundle. That billing model no longer exists
+ * for a smartphone web app — lean packets still travel as ordinary mobile
+ * data (from your bundle / out-of-bundle data), NOT a separate airtime GPRS
+ * channel. So "lean" means "smallest possible data", not "free of a bundle".
+ * The only path that truly works with no data is the SMS fallback.
  */
 
 export const GPRS_LIMIT = 400;
 export const GPRS_OVERHEAD = 96;
-export const GPRS_CENTS = "1–2c";
+export const GPRS_CENTS = "low-data";
 
 export type RadioMode = "data" | "gprs" | "sms";
 

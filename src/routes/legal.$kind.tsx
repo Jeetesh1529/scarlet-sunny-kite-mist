@@ -82,9 +82,10 @@ function Terms() {
       <p>By using {APP_NAME} you agree to these terms. If you don't, don't use the app. Last updated August 2026.</p>
       <p>You must be at least 14. Don't harass, impersonate, spam, or post illegal content. We may suspend accounts that break this.</p>
       <p>
-        Chat send and receive on a data bundle is free. GPRS / out-of-bundle airtime packets are not billed by {APP_NAME};
-        your network may charge about 1–2c per tiny message. Airtime SMS is last resort and may attract the network SMS
-        tariff (~80c).
+        Chat send and receive is free — {APP_NAME} adds no per-message charge. Messages travel as ordinary mobile data,
+        so your network's normal data rates apply (a fraction of a cent per message on a bundle); "lean" mode simply
+        minimises that data. The SMS fallback is the only path that works with no data, and your network may charge its
+        normal SMS tariff (~80c).
       </p>
       <p>
         {STORE.iap}. Moola cannot be exchanged for cash. Games in QX Post are free.

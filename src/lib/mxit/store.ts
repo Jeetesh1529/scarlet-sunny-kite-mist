@@ -1,10 +1,10 @@
 export const STORE = {
   name: "QXio",
   subtitle: "Blast From The Past",
-  short: "Free chat, rooms and games. GPRS when you have no data bundle.",
+  short: "Free chat, rooms and games. Light on data, with an SMS fallback.",
   full: `QXio is a South African messenger revival. Contacts, moods, Cape Town / Jozi / Durbs zones, rooms that feel occupied, and games you can challenge a friend to.
 
-Chat send and receive is free on a data bundle. No bundle? Tiny GPRS packets from airtime (~1–2c to Vodacom, MTN or Cell C). SMS is last resort (~80c).
+Chat send and receive is free — QXio adds no per-message charge, just a little mobile data. "Lean" mode keeps each message text-only and tiny to save data. No data at all? The SMS fallback sends over your phone's Messages at your network's SMS rate (~80c).
 
 Moola is earned in-app (welcome bonus, daily claim, streaks) and spends on extras like Skinz and Emoticards. Moola is not sold for real money and cannot be cashed out.
 

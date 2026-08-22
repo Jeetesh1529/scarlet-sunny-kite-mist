@@ -1,18 +1,21 @@
 /**
- * QXio message costs vs the OG app (SA, ~2005–2010).
+ * QXio message costs — honest version.
  *
- * Then:
- *   - SMS was ~75–80c per 160 chars (the expensive path the OG app escaped).
- *   - 1-to-1 over GPRS was ~1–2c in telco data, billed from airtime, not a bundle.
- *   - The client was free to download after a failed paid launch.
- *   - Paid chatrooms charged ~2 Moola (~2c) per message.
- *   - 1 Moola = 1c ZAR. 200 Moola via premium SMS cost R2.
+ * The OG app (SA, ~2005–2010) really did send 1-to-1 chats for ~1–2c by
+ * riding 2G GPRS packets billed straight off airtime. That billing model was a
+ * feature-phone / 2G thing the networks offered at the time. It does NOT exist
+ * for a modern smartphone web app: every byte this app sends travels as
+ * ordinary mobile data, billed from your data bundle (or your out-of-bundle
+ * data rate) — there is no separate "1–2c from airtime" channel any more.
  *
- * Now (QXio):
- *   - Send and receive on a data bundle is R0 / 0 Moola.
- *   - No bundle + a bit of airtime: GPRS lean packets, ~1–2c to the network (OG path).
- *   - Airtime SMS is the 80c last resort when there is no packet radio.
- *   - Zone rooms and QX Mix are free (old paid rooms were 2 Moola).
+ * So, truthfully:
+ *   - Chat on data: QXio charges R0. It uses a tiny bit of your normal mobile
+ *     data (a fraction of a cent per message on a bundle).
+ *   - "Lean" mode (labelled GPRS, a nod to the OG app): text-only, clipped to
+ *     400 chars, so it uses the least data possible — but it still uses data.
+ *   - SMS: the ONLY path that works with no data at all. It sends over your
+ *     phone's normal SMS (cellular signalling / airtime), so your network
+ *     charges its SMS tariff (~80c). QXio itself adds nothing.
  *
  * Moola extras stay as they are. Do not debit Moola from send paths.
  */
@@ -29,16 +32,16 @@ export const MOOLA_EXTRAS = {
 
 export const RATE_ROWS = [
   {
-    item: "1-to-1 (bundle)",
-    then: "~1–2c data (telco)",
+    item: "1-to-1 chat (data)",
+    then: "~1–2c 2G data",
     now: "FREE",
-    note: "Send and receive. No Moola.",
+    note: "Send and receive on data. QXio adds no charge — just a little mobile data.",
   },
   {
-    item: "GPRS airtime",
+    item: "Lean mode (GPRS)",
     then: "~1–2c GPRS",
-    now: "~1–2c to network",
-    note: "No bundle. Tiny packets from airtime, same as the OG app. QXio R0.",
+    now: "FREE · low data",
+    note: "Text only, 400 chars, tiny packets — least data possible. Still uses your bundle, not a separate airtime channel.",
   },
   {
     item: "Zone rooms",
@@ -50,24 +53,24 @@ export const RATE_ROWS = [
     item: "QX Mix groups",
     then: "n/a",
     now: "FREE",
-    note: "Send and receive.",
+    note: "Send and receive on data.",
   },
   {
-    item: "Airtime SMS",
+    item: "SMS (no data)",
     then: "~80c / SMS",
-    now: "last resort · ~80c",
-    note: "Only when there is no packet radio. Network SMS tariff.",
+    now: "network SMS rate",
+    note: "The only path that works with no data bundle. Sends over your phone's SMS — your network's tariff. QXio adds nothing.",
   },
   {
     item: "Pics & voice",
     then: "n/a",
-    now: "FREE on bundle",
-    note: "Not on GPRS or SMS.",
+    now: "FREE on data",
+    note: "Data only. Not available on the lean or SMS text paths.",
   },
 ] as const;
 
-export const DATA_CHAT_HINT = "Data chat · FREE";
+export const DATA_CHAT_HINT = "Data chat · FREE (uses a little mobile data)";
 export const GPRS_COST_HINT =
-  "GPRS · ~1–2c from airtime, no bundle. Same as the OG app. QXio R0.";
+  "Lean mode · text-only, smallest packets. A fraction of a cent of data on a bundle — still uses data, not a separate airtime channel.";
 export const AIRTIME_COST_HINT =
-  "SMS last resort. QXio is free; your network may charge ~80c. GPRS is the cheap ~1–2c path.";
+  "SMS · the no-data fallback. Sends over your phone's SMS at your network's rate (~80c). QXio adds nothing.";

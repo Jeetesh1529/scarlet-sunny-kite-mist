@@ -1144,7 +1144,7 @@ function ProfileView({ onBack }: { onBack: () => void }) {
       <Card>
         <div className="text-[12px] font-medium uppercase opacity-80">Cell · last-resort SMS</div>
         <p className="text-[11px] text-white/55">
-          Only needed if GPRS can't get through. Cheap path is GPRS (~1–2c from airtime, same as the OG app). SMS is ~80c.
+          Only needed when you have no data at all. SMS sends over your phone's Messages at your network's rate (~80c). On data, lean mode is far cheaper.
         </p>
         <Label className="text-[12px] text-white/80">SA cell number</Label>
         <Input
@@ -1292,7 +1292,7 @@ function SettingsView({ onBack }: { onBack: () => void }) {
       <Card>
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2">
-            <Radio className="h-4 w-4 text-teal-200" /> Cheap airtime · GPRS
+            <Radio className="h-4 w-4 text-teal-200" /> Lean mode · low data
           </span>
           <Switch
             checked={!!profile.airtime_gprs}
@@ -1303,7 +1303,7 @@ function SettingsView({ onBack }: { onBack: () => void }) {
           />
         </div>
         <p className="text-[11px] text-white/50">
-          No bundle, a bit of airtime: tiny packets over GPRS — about 1–2c to Vodacom/MTN/Cell C, same as the OG app. QXio is free. Pictures stay off.
+          Low on data: keeps each message text-only and tiny to use the least data possible. It still uses your data, not a separate airtime channel. QXio adds no charge. Pictures stay off.
         </p>
       </Card>
       <Card>
@@ -1320,7 +1320,7 @@ function SettingsView({ onBack }: { onBack: () => void }) {
           />
         </div>
         <p className="text-[11px] text-white/50">
-          Only if there is no packet radio. Network SMS is still ~80c — the expensive path the OG app escaped. Prefer GPRS.
+          The only path that works with no data at all. Your network charges its normal SMS rate (~80c). On any data connection, lean mode is far cheaper.
         </p>
       </Card>
       <Button variant="destructive" className="w-full" onClick={() => void signOut()}>
@@ -1433,22 +1433,21 @@ function HelpView({ onBack }: { onBack: () => void }) {
     <ChromeInner title="Help" onBack={onBack}>
       <Card>
         <div className="text-[13px] font-semibold">QXio v1.9</div>
-        <p className="text-[13px] text-white/80">A blast from the past — contacts, zones, GPRS airtime, QX Mix, Moola, QX Post and Moonbase, rebuilt for phones. Public site qxio.live.</p>
+        <p className="text-[13px] text-white/80">A blast from the past — contacts, zones, lean data mode, QX Mix, Moola, QX Post and Moonbase, rebuilt for phones. Public site qxio.live.</p>
       </Card>
       <Card>
         <RatesCard />
       </Card>
       <Card>
-        <div className="text-[12px] font-medium uppercase opacity-80">No bundle? Same as the OG app</div>
+        <div className="text-[12px] font-medium uppercase opacity-80">Low on data? Here's how</div>
         <p className="text-[13px] text-white/80">
-          The OG app didn't use SMS. It sent tiny packets over GPRS, billed from airtime — about 1–2c to the network. QXio does that too.
+          The OG app rode cheap 2G GPRS billed off airtime — a channel that no longer exists on today's phones. QXio keeps costs down two honest ways instead:
         </p>
         <ul className="list-disc space-y-1 pl-4 text-[13px] text-white/80">
-          <li>You need reception and a little airtime. No data bundle.</li>
-          <li>In chat, tap the radio: Data (free) → GPRS (~1–2c) → SMS (~80c).</li>
-          <li>GPRS is text only, 400 characters, one small packet.</li>
-          <li>Install QXio to the home screen so you are not downloading the app over airtime — only the messages.</li>
-          <li>SMS is last resort if the packet radio is fully off.</li>
+          <li>In chat, tap the radio: Data (free) → Lean (low data) → SMS (~80c, no data needed).</li>
+          <li>Lean mode is text only, 400 characters, one small packet — the least data possible, but still data.</li>
+          <li>Install QXio to your home screen once (over Wi-Fi ideally) so you only spend data on messages, not the app.</li>
+          <li>SMS is the only true no-data path: it sends over your phone's Messages at your network's SMS rate.</li>
         </ul>
       </Card>
       {!installed && (
@@ -1485,7 +1484,7 @@ function HelpView({ onBack }: { onBack: () => void }) {
         <ul className="list-disc space-y-1 pl-4 text-[13px] text-white/80">
           <li>Your QXio ID is unique and locked. Nobody else can claim it.</li>
           <li>Send and receive is free on a bundle. Rooms too. Moola is for extras only.</li>
-          <li>No bundle: tap radio for GPRS (~1–2c airtime), same as the OG app. SMS is ~80c last resort.</li>
+          <li>Low data: tap radio for lean mode (text-only, tiny). No data at all? SMS fallback (~80c, your network).</li>
           <li>Long-press a bubble to copy, reply or delete. Long-press a friend to Challenge them to Chess, Connect 4 or Tic-Tac-Toe.</li>
           <li>Menu → Invite a friend to copy your unique ID, share, or SMS it.</li>
           <li>Zones: CT, Jozi, Durbs — filter the list or jump into the room.</li>

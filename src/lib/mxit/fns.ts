@@ -24,6 +24,7 @@ import { RESERVED_QXIO_IDS } from "./zones";
 import { clipSms, SMS_LIMIT, toE164 } from "@/lib/sms";
 import { clipGprs, GPRS_LIMIT } from "@/lib/gprs";
 import { MSG_COST_MOOLA, MOOLA_EXTRAS } from "./rates";
+import { sendSmsOut, smsOutboundEnabled } from "./sms-out";
 let seedJob: Promise<void> | null = null;
 const onboarded = new Map<string, Promise<void>>();
 
@@ -942,6 +943,66 @@ export const pollConversation = createServerFn({ method: "POST" })
     return { messages, typing };
   });
 
+/**
+ * Long-poll variant of pollConversation: instead of returning immediately, it
+ * HOLDS the request open (up to ~9s) and only returns early when a new message
+ * arrives or the typing state flips. The client reconnects in a loop, so an
+ * idle chat makes roughly one held request every 9s with no payload flowing —
+ * instead of a fresh round-trip every 2s. That is the difference between a chat
+ * quietly draining mobile data while open and one that costs almost nothing
+ * until something actually happens. Kept under typical serverless request
+ * limits (~10s) so a held request completes rather than being killed.
+ */
+const WAIT_HOLD_MS = 9000;
+const WAIT_TICK_MS = 1200;
+
+export const waitConversation = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator((d: { convId: string; afterId?: string | null }) => d)
+  .handler(async ({ context, data }) => {
+    const sql = await getSql();
+    const conv = await sql<{ id: string; user_a: string; user_b: string }>`
+      select id, user_a, user_b from conversations where id = ${data.convId}
+    `;
+    if (!conv[0] || (conv[0].user_a !== context.userId && conv[0].user_b !== context.userId)) {
+      throw new Error("Conversation not found");
+    }
+    const otherId = conv[0].user_a === context.userId ? conv[0].user_b : conv[0].user_a;
+
+    const check = async () => {
+      await maybeFlushBotReply(sql, data.convId, context.userId, otherId);
+      let messages: ChatMessage[] = [];
+      if (data.afterId) {
+        messages = await sql<ChatMessage>`
+          select m.id, m.sender_id, m.content, m.delivery, m.created_at,
+            coalesce(m.kind, 'text') as kind, m.media, coalesce(m.channel, 'data') as channel,
+            m.reply_to, m.reply_preview, coalesce(m.deleted, false) as deleted,
+            p.display_name as sender_name, p.avatar_seed as sender_seed
+          from messages m
+          join profiles p on p.id = m.sender_id
+          where m.conversation_id = ${data.convId}
+            and m.id <> ${data.afterId}
+            and m.created_at >= coalesce((select created_at from messages where id = ${data.afterId}), 'epoch'::timestamptz)
+          order by m.created_at
+          limit 40
+        `;
+      }
+      const typing = await convTyping(sql, data.convId, context.userId, otherId);
+      return { messages, typing };
+    };
+
+    const deadline = Date.now() + WAIT_HOLD_MS;
+    const first = await check();
+    if (first.messages.length) return first;
+    const baselineTyping = first.typing;
+    for (;;) {
+      if (Date.now() >= deadline) return { messages: [] as ChatMessage[], typing: baselineTyping };
+      await new Promise((r) => setTimeout(r, WAIT_TICK_MS));
+      const r = await check();
+      if (r.messages.length || r.typing !== baselineTyping) return r;
+    }
+  });
+
 export const sendDirect = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((d: { convId: string; content: string; kind?: MsgKind; media?: string | null; channel?: MsgChannel; replyTo?: string | null }) => d)
@@ -997,6 +1058,27 @@ export const sendDirect = createServerFn({ method: "POST" })
     `;
     await sql`update conversations set last_message_at = now() where id = ${data.convId}`;
     await sql`delete from typing where conversation_id = ${data.convId} and user_id = ${context.userId}`;
+
+    // True no-data path: if this is an SMS-channel message and a real aggregator
+    // is configured (opt-in via SMS_OUTBOUND=1), deliver it to the peer's handset
+    // so they receive it even with no data. Best-effort — a delivery failure must
+    // never fail the in-app send, which already succeeded above.
+    if (channel === "sms" && smsOutboundEnabled()) {
+      try {
+        const peerRow = await sql<{ phone: string | null; is_bot: boolean }>`
+          select phone, coalesce(is_bot, false) as is_bot from profiles where id = ${peer}
+        `;
+        const me = await sql<{ mxit_id: string }>`select mxit_id from profiles where id = ${context.userId}`;
+        if (peerRow[0]?.phone && !peerRow[0].is_bot) {
+          const outBody = clipSms(`QX ${me[0]?.mxit_id ?? "qxio"}: ${content}`);
+          const r = await sendSmsOut(peerRow[0].phone, outBody);
+          if (!r.ok && r.error) console.error("[sms-out]", r.provider, r.error);
+        }
+      } catch (e) {
+        console.error("[sms-out] delivery failed:", e);
+      }
+    }
+
     const rows = await sql<ChatMessage>`
       select id, sender_id, content, delivery, created_at, coalesce(kind, 'text') as kind, media, coalesce(channel, 'data') as channel,
         reply_to, reply_preview, coalesce(deleted, false) as deleted

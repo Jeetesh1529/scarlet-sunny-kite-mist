@@ -167,7 +167,7 @@ export function ChatLog({
                 <span>{hhmm(m.created_at)}</span>
                 {m.channel === "gprs" && (
                   <span className="inline-flex items-center gap-0.5 font-semibold uppercase tracking-wide text-teal-700">
-                    <Radio className="h-2.5 w-2.5" /> gprs · 1–2c
+                    <Radio className="h-2.5 w-2.5" /> gprs · lean
                   </span>
                 )}
                 {m.channel === "sms" && (
@@ -383,7 +383,7 @@ export function Composer({
         <div className="mb-2 flex items-center gap-2 rounded-xl bg-teal-50 px-3 py-1.5 text-[11px] text-teal-800">
           <Radio className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
-            {offline ? "No packet radio — this will queue, then ride GPRS (~1–2c) when you're back." : GPRS_COST_HINT}
+            {offline ? "Offline — this will queue and send (as lean data) when you're back on a connection." : GPRS_COST_HINT}
           </span>
           <span className={`font-mono ${text.length > GPRS_LIMIT ? "text-rose-600" : "text-teal-700/80"}`}>
             {text.length}/{GPRS_LIMIT}
@@ -394,7 +394,7 @@ export function Composer({
         <div className="mb-2 flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-1.5 text-[11px] text-amber-800">
           <Antenna className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
-            {offline ? "No data — SMS last resort. Network may charge ~80c. Tap radio to cycle to GPRS (~1–2c)." : AIRTIME_COST_HINT}
+            {offline ? "No data — SMS is the fallback. Your network charges its SMS rate (~80c). It sends over your phone's Messages app." : AIRTIME_COST_HINT}
           </span>
           <span className={`font-mono ${text.length > SMS_LIMIT ? "text-rose-600" : "text-amber-700/80"}`}>
             {text.length}/{SMS_LIMIT}
@@ -428,9 +428,9 @@ export function Composer({
               onRadioChange(next);
               toast.message(
                 next === "gprs"
-                  ? "GPRS on · ~1–2c airtime, no bundle"
+                  ? "Lean mode on · text-only, minimal data"
                   : next === "sms"
-                    ? "SMS last resort · ~80c"
+                    ? "SMS fallback · ~80c, works with no data"
                     : "Data chat · FREE",
               );
             }}
@@ -443,7 +443,7 @@ export function Composer({
                   : "text-sky-600 hover:bg-sky-50",
             )}
             aria-label="Radio mode"
-            title="Cycle: data (free) → GPRS (~1–2c) → SMS (~80c)"
+            title="Cycle: data (free) → lean (low data) → SMS (~80c, no data needed)"
           >
             {radio === "sms" ? <Antenna className="h-5 w-5" /> : <Radio className="h-5 w-5" />}
           </button>

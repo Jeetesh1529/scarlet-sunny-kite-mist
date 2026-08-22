@@ -90,7 +90,7 @@ export function LandingScreen() {
           <Feature icon={MessageCircle} title="Free chat" body="Send and receive on a data bundle costs nothing. Copy, reply, delete. Photos and voice notes." />
           <Feature icon={MapPin} title="CT, Jozi, Durbs" body="Zone rooms that feel occupied — who's in here, last line of chat, not a dead topic." />
           <Feature icon={Gamepad2} title="Challenge a friend" body="Chess, Connect 4, Tic-Tac-Toe land in chat. Moonbase and Skip-Bo vs the house. All free." />
-          <Feature icon={Radio} title="No bundle? Still text" body="Tiny GPRS packets from airtime, about 1–2c to the network. SMS is last resort." />
+          <Feature icon={Radio} title="Light on data" body="Lean mode sends text-only in tiny packets. No data at all? SMS fallback rides your phone's Messages (network SMS rate)." />
         </section>
 
         <section className="mt-8 space-y-2 rounded-2xl border border-white/15 bg-white/8 p-4">
