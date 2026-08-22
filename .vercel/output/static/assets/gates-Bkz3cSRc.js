@@ -1,1 +1,0 @@
-import{h as e,y as t}from"./chrome-D1fcgCH6.js";var n=t(),r=`/login`;function i({to:t=r}){return(0,n.jsx)(e,{to:t})}export{i as t};

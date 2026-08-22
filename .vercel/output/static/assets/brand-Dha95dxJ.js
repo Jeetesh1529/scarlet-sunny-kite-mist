@@ -1,1 +1,0 @@
-var e=`QXio`,t=`Blast From The Past`,n=`QXio — Blast From The Past. Chat is free. Rooms, Moola extras, QX Post.`,r=`QXio ID`,i=`#0A1B3D`;export{i as a,r as i,e as n,t as r,n as t};
