@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BackBtn, Screen, Softkeys, Titlebar } from "@/components/mxit/chrome";
 import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -55,6 +55,18 @@ function clone(g: Game): Game {
     ai: side(g.ai),
     turn: g.turn,
     winner: g.winner,
+  };
+}
+
+function emptyGame(): Game {
+  return {
+    draw: [],
+    dump: [],
+    builds: [[], [], [], []],
+    you: freshSide([]),
+    ai: freshSide([]),
+    turn: "you",
+    winner: null,
   };
 }
 
@@ -229,7 +241,12 @@ function Face({
 function SkipBo() {
   const { user, isPending } = useCurrentUserState();
   const navigate = useNavigate();
-  const [g, setG] = useState<Game>(deal);
+  const [g, setG] = useState<Game>(emptyGame);
+  // Deal on the client only — dealing during SSR would shuffle differently on
+  // the server vs the client and break hydration. Empty board renders identically.
+  useEffect(() => {
+    setG(deal());
+  }, []);
   const [sel, setSel] = useState<Sel>(null);
   const [score, setScore] = useState({ you: 0, ai: 0 });
   const [msg, setMsg] = useState("Play onto a build, or discard to end your turn");
