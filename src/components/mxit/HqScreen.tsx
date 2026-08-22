@@ -440,7 +440,7 @@ export function HqScreen() {
             <p className="mt-1 text-[13px] text-white/55">
               {snap?.persist === "neon"
                 ? "Live database — every Create my ID stays here."
-                : "Preview sandbox — this list wipes if the preview restarts. Publish qxio.live to keep real signups."}
+                : "Local preview — this data resets when the dev server restarts."}
             </p>
           </div>
           <div className="flex shrink-0 gap-1.5">
@@ -534,7 +534,7 @@ export function HqScreen() {
                   <div className="flex flex-col items-center gap-2 py-8 text-center">
                     <UserPlus className="h-6 w-6 text-white/40" />
                     <p className="text-[14px] text-white/65">
-                      {hits ? "No match." : "No humans yet. After Publish, every Create my ID lands here."}
+                      {hits ? "No match." : "No one has signed up yet. Every Create my ID lands here."}
                     </p>
                   </div>
                 ) : (
