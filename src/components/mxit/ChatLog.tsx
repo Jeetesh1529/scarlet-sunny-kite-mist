@@ -19,7 +19,7 @@ import { PixelAvatar } from "./PixelAvatar";
 export function TypingDots({ name }: { name?: string }) {
   return (
     <div className="flex items-end gap-2 animate-fade-up">
-      <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-white px-3 py-2.5 shadow-sm ring-1 ring-black/5">
+      <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-card px-3 py-2.5 shadow-sm ring-1 ring-white/10">
         <span className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-typing-1" />
         <span className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-typing-2" />
         <span className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-typing-3" />
@@ -346,7 +346,7 @@ export function Composer({
   };
 
   return (
-    <div className="relative shrink-0 border-t border-black/8 bg-white px-2 py-2">
+    <div className="relative shrink-0 border-t border-border bg-card px-2 py-2">
       {reply && (
         <div className="mb-2 flex items-center gap-2 rounded-xl bg-sky-50 px-3 py-1.5 text-[12px] text-sky-800">
           <Reply className="h-3.5 w-3.5 shrink-0" />
@@ -477,7 +477,7 @@ export function Composer({
           rows={1}
           maxLength={limit}
           placeholder={radio === "gprs" ? "GPRS packet…" : radio === "sms" ? "SMS last resort…" : "Message…"}
-          className="max-h-24 min-h-10 flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900"
+          className="max-h-24 min-h-10 flex-1 resize-none rounded-2xl border border-border bg-secondary px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground"
         />
         {text.trim() || lean ? (
           <button

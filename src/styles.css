@@ -1,21 +1,22 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=VT323&family=Press+Start+2P&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Schibsted+Grotesk:wght@500;600;700;800&family=VT323&family=Press+Start+2P&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Schibsted Grotesk", "Inter", system-ui, sans-serif;
   --font-pixel: "Press Start 2P", ui-monospace, monospace;
   --font-mono-pixel: "VT323", ui-monospace, monospace;
 
-  --color-mxit-deep: hsl(218 80% 21%);
-  --color-mxit-primary: hsl(211 73% 48%);
-  --color-mxit-glow: hsl(210 100% 65%);
-  --color-mxit-bg: hsl(215 40% 96%);
-  --color-mxit-bubble-me: hsl(199 92% 46%);
-  --color-mxit-bubble-them: hsl(0 0% 100%);
-  --color-mxit-online: hsl(142 60% 52%);
-  --color-mxit-moola: hsl(38 90% 52%);
-  --color-mxit-screen: hsl(215 50% 97%);
+  --color-mxit-deep: hsl(220 45% 12%);
+  --color-mxit-primary: hsl(214 90% 60%);
+  --color-mxit-glow: hsl(172 68% 62%);
+  --color-mxit-bg: hsl(222 24% 6%);
+  --color-mxit-bubble-me: hsl(210 90% 58%);
+  --color-mxit-bubble-them: hsl(222 16% 15%);
+  --color-mxit-online: hsl(152 62% 52%);
+  --color-mxit-moola: hsl(40 80% 60%);
+  --color-mxit-screen: hsl(222 20% 8%);
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -45,16 +46,17 @@
 @layer base {
   :root,
   [data-theme="classic"] {
-    --mxit-deep: 218 80% 21%;
-    --mxit-primary: 211 73% 48%;
-    --mxit-glow: 210 100% 65%;
-    --mxit-bg: 215 40% 96%;
-    --mxit-bubble-me: 199 92% 46%;
-    --mxit-bubble-them: 0 0% 100%;
-    --mxit-online: 142 60% 52%;
-    --mxit-moola: 38 90% 52%;
-    --mxit-screen: 215 50% 97%;
-    --mxit-pixel-grid: 211 60% 90%;
+    /* Premium dark by default — near-black ground, blue→teal accent. */
+    --mxit-deep: 220 45% 12%;
+    --mxit-primary: 214 90% 60%;
+    --mxit-glow: 172 68% 62%;
+    --mxit-bg: 222 24% 6%;
+    --mxit-bubble-me: 210 90% 58%;
+    --mxit-bubble-them: 222 16% 15%;
+    --mxit-online: 152 62% 52%;
+    --mxit-moola: 40 80% 60%;
+    --mxit-screen: 222 20% 8%;
+    --mxit-pixel-grid: 220 18% 18%;
   }
 
   [data-theme="green"] {
@@ -137,26 +139,27 @@
   }
 
   :root {
+    /* Premium dark tokens (default). Light users get [data-mode="light"] below. */
     --background: var(--mxit-bg);
-    --foreground: var(--mxit-deep);
-    --card: 0 0% 100%;
-    --card-foreground: var(--mxit-deep);
-    --popover: 0 0% 100%;
-    --popover-foreground: var(--mxit-deep);
+    --foreground: 222 30% 95%;
+    --card: 222 18% 11%;
+    --card-foreground: 222 30% 95%;
+    --popover: 222 18% 12%;
+    --popover-foreground: 222 30% 95%;
     --primary: var(--mxit-primary);
     --primary-foreground: 0 0% 100%;
-    --secondary: 215 30% 92%;
-    --secondary-foreground: var(--mxit-deep);
-    --muted: 215 25% 94%;
-    --muted-foreground: 215 15% 45%;
+    --secondary: 222 16% 16%;
+    --secondary-foreground: 222 30% 95%;
+    --muted: 222 16% 14%;
+    --muted-foreground: 220 13% 64%;
     --accent: var(--mxit-glow);
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 75% 55%;
+    --accent-foreground: 222 45% 8%;
+    --destructive: 0 75% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 215 25% 88%;
-    --input: 215 25% 90%;
+    --border: 220 14% 20%;
+    --input: 220 14% 18%;
     --ring: var(--mxit-primary);
-    --radius: 0.625rem;
+    --radius: 0.75rem;
   }
 
   [data-theme="black"] {
@@ -245,6 +248,14 @@
     font-family: Inter, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     user-select: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Schibsted Grotesk", "Inter", system-ui, sans-serif;
+    letter-spacing: -0.02em;
   }
 
   input,
@@ -417,21 +428,17 @@
 
   .mxit-classic-bg {
     background:
-      radial-gradient(
-        ellipse 130% 90% at 50% 0%,
-        hsl(188 70% 18%) 0%,
-        hsl(188 74% 12%) 55%,
-        hsl(190 80% 6%) 100%
-      );
+      radial-gradient(ellipse 90% 60% at 84% -6%, hsl(214 100% 62% / 0.13), transparent 60%),
+      radial-gradient(ellipse 80% 55% at 8% 4%, hsl(172 68% 55% / 0.09), transparent 58%),
+      hsl(222 24% 6%);
+    color: hsl(var(--foreground));
     position: relative;
   }
   .mxit-classic-bg::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image:
-      linear-gradient(180deg, hsl(188 80% 35% / 0.18) 0%, transparent 40%),
-      radial-gradient(ellipse 70% 45% at 50% 110%, hsl(188 80% 25% / 0.25), transparent 72%);
+    background-image: none;
     pointer-events: none;
   }
   .mxit-watermark {
@@ -462,14 +469,16 @@
 
   .qx-auth {
     background:
-      radial-gradient(ellipse 90% 70% at 50% -10%, hsl(198 90% 28% / 0.55), transparent 58%),
-      linear-gradient(180deg, hsl(218 72% 14%) 0%, hsl(222 78% 8%) 55%, hsl(226 80% 5%) 100%);
+      radial-gradient(ellipse 92% 72% at 82% -8%, hsl(214 100% 62% / 0.22), transparent 60%),
+      radial-gradient(ellipse 80% 60% at 8% 6%, hsl(172 68% 55% / 0.16), transparent 58%),
+      linear-gradient(180deg, hsl(222 24% 9%) 0%, hsl(222 26% 6%) 60%, hsl(224 28% 4%) 100%);
   }
   .qx-hq {
     background:
-      radial-gradient(ellipse 80% 50% at 50% -8%, hsl(198 80% 24% / 0.4), transparent 55%),
-      linear-gradient(180deg, hsl(218 72% 14%) 0%, hsl(222 78% 8%) 100%);
-    color: #f4f7fb;
+      radial-gradient(ellipse 84% 54% at 82% -8%, hsl(214 100% 62% / 0.18), transparent 56%),
+      radial-gradient(ellipse 70% 50% at 8% 4%, hsl(172 68% 55% / 0.12), transparent 55%),
+      linear-gradient(180deg, hsl(222 24% 8%) 0%, hsl(224 28% 5%) 100%);
+    color: #eef1f6;
   }
   .qx-auth-orb {
     position: absolute;
@@ -493,97 +502,73 @@
   }
   .qx-logo-tile {
     border-radius: 18px;
-    background: linear-gradient(180deg, hsl(198 80% 42%), hsl(210 85% 28%));
+    background: linear-gradient(135deg, hsl(214 100% 64%), hsl(172 68% 58%));
     box-shadow:
-      0 10px 28px hsl(210 90% 20% / 0.45),
-      inset 0 1px 0 hsl(0 0% 100% / 0.35);
+      0 12px 30px hsl(214 90% 40% / 0.4),
+      inset 0 1px 0 hsl(0 0% 100% / 0.4);
   }
 
   .mxit-titlebar {
-    background: linear-gradient(
-      180deg,
-      hsl(210 95% 55%) 0%,
-      hsl(213 90% 42%) 48%,
-      hsl(218 90% 28%) 49%,
-      hsl(215 85% 32%) 100%
-    );
-    box-shadow:
-      inset 0 1px 0 hsl(0 0% 100% / 0.5),
-      inset 0 -1px 0 hsl(220 80% 12% / 0.6),
-      0 1px 2px hsl(220 80% 5% / 0.4);
-    color: hsl(0 0% 100%);
-    text-shadow: 0 1px 0 hsl(220 80% 10% / 0.7);
+    background: hsl(222 18% 10% / 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid hsl(var(--border));
+    box-shadow: none;
+    color: hsl(var(--foreground));
+    text-shadow: none;
+    font-family: "Schibsted Grotesk", "Inter", system-ui, sans-serif;
+    letter-spacing: -0.01em;
   }
 
   .mxit-presence-dialog {
-    background: radial-gradient(
-      ellipse 120% 80% at 50% 0%,
-      hsl(210 90% 38%) 0%,
-      hsl(218 85% 18%) 55%,
-      hsl(220 90% 8%) 100%
-    );
+    background: linear-gradient(180deg, hsl(222 18% 12%) 0%, hsl(222 22% 8%) 100%);
+    border: 1px solid hsl(var(--border));
   }
 
   .status-orb {
     position: relative;
-    width: 14px;
-    height: 14px;
+    width: 11px;
+    height: 11px;
     border-radius: 999px;
     flex-shrink: 0;
-    box-shadow:
-      inset 0 -2px 3px hsl(0 0% 0% / 0.35),
-      inset 0 1px 1px hsl(0 0% 100% / 0.2),
-      0 1px 1px hsl(0 0% 0% / 0.4);
-  }
-  .status-orb::before {
-    content: "";
-    position: absolute;
-    top: 1.5px;
-    left: 2.5px;
-    width: 7px;
-    height: 5px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, hsl(0 0% 100% / 0.85), hsl(0 0% 100% / 0));
-    filter: blur(0.3px);
+    box-shadow: 0 0 0 2px hsl(var(--card));
   }
   .orb-online {
-    background: radial-gradient(circle at 35% 35%, hsl(110 80% 65%), hsl(120 75% 35%) 70%, hsl(130 80% 22%));
+    background: hsl(152 62% 52%);
+    box-shadow: 0 0 0 2px hsl(var(--card)), 0 0 8px hsl(152 62% 52% / 0.6);
   }
   .orb-away {
-    background: radial-gradient(circle at 35% 35%, hsl(45 100% 70%), hsl(38 95% 50%) 70%, hsl(30 90% 32%));
+    background: hsl(40 90% 56%);
   }
   .orb-busy {
-    background: radial-gradient(circle at 35% 35%, hsl(8 90% 65%), hsl(0 80% 48%) 70%, hsl(355 75% 28%));
+    background: hsl(0 75% 60%);
   }
   .orb-offline {
-    background: radial-gradient(circle at 35% 35%, hsl(0 0% 75%), hsl(0 0% 45%) 70%, hsl(0 0% 25%));
+    background: hsl(220 10% 42%);
   }
   .orb-invite {
-    background: radial-gradient(circle at 35% 35%, hsl(205 100% 75%), hsl(210 95% 50%) 70%, hsl(218 90% 25%));
+    background: hsl(214 90% 62%);
   }
 
   .mxit-row-active {
-    background: linear-gradient(180deg, hsl(0 70% 28% / 0.95) 0%, hsl(0 75% 18% / 0.95) 100%);
-    box-shadow:
-      inset 0 1px 0 hsl(0 80% 50% / 0.6),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.5);
+    background: hsl(214 90% 60% / 0.14);
+    box-shadow: inset 0 0 0 1px hsl(214 90% 60% / 0.32);
   }
 
   .mxit-softkeys {
-    background: linear-gradient(180deg, hsl(218 60% 22%) 0%, hsl(220 70% 10%) 100%);
-    box-shadow:
-      inset 0 1px 0 hsl(210 80% 45% / 0.6),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.6);
-    color: hsl(0 0% 100%);
+    background: hsl(222 20% 8% / 0.92);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid hsl(var(--border));
+    box-shadow: none;
+    color: hsl(var(--muted-foreground));
   }
 
   .envelope-unread {
-    color: hsl(45 100% 65%);
-    filter: drop-shadow(0 1px 1px hsl(0 0% 0% / 0.5));
+    color: hsl(214 90% 64%);
+    filter: none;
   }
   .envelope-read {
-    color: hsl(0 0% 90%);
-    opacity: 0.7;
+    color: hsl(var(--muted-foreground));
+    opacity: 0.6;
   }
 
   [data-mode="light"] .mxit-classic-bg {
@@ -611,24 +596,26 @@
   }
 
   [data-mode="dark"] .mxit-classic-bg {
-    background: hsl(0 0% 0%);
+    background: hsl(224 26% 5%);
   }
   [data-mode="dark"] .mxit-classic-bg::before {
     background-image: none;
   }
   [data-mode="dark"] .mxit-titlebar {
-    background: linear-gradient(180deg, hsl(0 0% 18%) 0%, hsl(0 0% 8%) 100%);
-    color: hsl(0 0% 75%);
+    background: hsl(224 22% 9% / 0.92);
+    color: hsl(var(--foreground));
   }
   [data-mode="dark"] .mxit-softkeys {
-    background: linear-gradient(180deg, hsl(0 0% 12%) 0%, hsl(0 0% 4%) 100%);
-    color: hsl(0 0% 90%);
+    background: hsl(224 24% 6% / 0.92);
+    color: hsl(var(--muted-foreground));
   }
 
   .mxit-chatlog {
     position: relative;
-    background: hsl(0 0% 100%);
-    color: hsl(0 0% 0%);
+    background:
+      radial-gradient(ellipse 90% 55% at 84% -8%, hsl(214 100% 62% / 0.1), transparent 58%),
+      hsl(222 24% 6%);
+    color: hsl(var(--foreground));
   }
   .mxit-chatlog::before {
     content: "";
@@ -639,11 +626,11 @@
     height: 128px;
     margin-left: -64px;
     margin-top: -64px;
-    background-image: url("/qx-mark-color.svg");
+    background-image: url("/qx-mark.svg");
     background-repeat: no-repeat;
     background-position: center;
     background-size: 128px 128px;
-    opacity: 0.08;
+    opacity: 0.1;
     pointer-events: none;
     z-index: 0;
   }
