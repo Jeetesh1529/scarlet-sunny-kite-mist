@@ -26,6 +26,16 @@ export const Route = createFileRoute("/moola")({ component: MoolaHub });
 // installed Play (TWA) app (guarded by billingAvailable()).
 type PriceMap = Record<string, { currency: string; value: string }>;
 
+// Digital Goods returns prices as micros-ish decimal strings (e.g. "16.990000")
+// with an ISO currency code. Render them cleanly: "R16.99" for ZAR, otherwise
+// "USD 4.99". Trailing ".00" is dropped so whole amounts read "R15".
+function fmtPrice(p?: { currency: string; value: string }): string | null {
+  if (!p) return null;
+  const n = Number(p.value);
+  const amount = Number.isFinite(n) ? n.toFixed(2).replace(/\.00$/, "") : p.value;
+  return p.currency === "ZAR" ? `R${amount}` : `${p.currency} ${amount}`;
+}
+
 function MoolaHub() {
   const { user, isPending } = useCurrentUserState();
   const { profile, refresh } = useMxit();
@@ -67,6 +77,45 @@ function MoolaHub() {
   async function buy(pack: MoolaPack) {
     setBusy(pack.id);
     try {
+      // @ts-expect-error - Digital Goods API not in TS DOM lib.
+      const svc = await window.getDigitalGoodsService(PLAY_BILLING_METHOD);
+
+      // A consumable that was bought but never consumed (e.g. a prior attempt
+      // whose verify/consume was interrupted) stays "owned", and Play then
+      // rejects a fresh purchase of the same SKU — which surfaces to the user
+      // as an "Invalid state" error. Before buying, reconcile any stranded copy
+      // of this pack: credit it server-side (idempotent) then consume it so the
+      // slot is free again.
+      if (svc?.listPurchases) {
+        try {
+          const owned: Array<{ itemId: string; purchaseToken: string }> = await svc.listPurchases();
+          const mine = owned.filter((o) => o.itemId === pack.id);
+          if (mine.length) {
+            for (const o of mine) {
+              try {
+                await verifyMoolaPurchase({ data: { productId: o.itemId, purchaseToken: o.purchaseToken } });
+              } catch {
+                /* keep going — still try to consume so the SKU frees up */
+              }
+              if (svc.consume) {
+                try {
+                  await svc.consume(o.purchaseToken);
+                } catch {
+                  /* consume best-effort */
+                }
+              }
+            }
+            // The stranded purchase was the user's Moola — it's now credited.
+            await refresh();
+            setTx(await listMoola());
+            toast.success("Restored a previous top-up — tap again to buy more");
+            return;
+          }
+        } catch {
+          /* listPurchases unsupported or failed — proceed to a normal buy */
+        }
+      }
+
       const price = prices[pack.id] ?? { currency: "ZAR", value: String(pack.zar) };
       const req = new PaymentRequest(
         [{ supportedMethods: PLAY_BILLING_METHOD, data: { sku: pack.id } } as PaymentMethodData],
@@ -77,12 +126,26 @@ function MoolaHub() {
       const purchaseToken = det.token ?? det.purchaseToken ?? "";
       const r = await verifyMoolaPurchase({ data: { productId: pack.id, purchaseToken } });
       await resp.complete("success");
+      // Consume client-side too, so the consumable never gets stuck "owned"
+      // even if the server-side consume didn't land.
+      if (svc?.consume && purchaseToken) {
+        try {
+          await svc.consume(purchaseToken);
+        } catch {
+          /* already consumed server-side */
+        }
+      }
       toast.success(`+${r.credited || pack.moola} Moola`);
       await refresh();
       setTx(await listMoola());
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Purchase failed";
-      if (!/cancel/i.test(msg)) toast.error(msg);
+      const err = e as { name?: string; message?: string };
+      const name = err?.name ?? "";
+      const msg = err?.message || "Purchase failed";
+      // User dismissed the Play sheet — stay quiet.
+      if (/abort/i.test(name) || /cancel/i.test(msg)) return;
+      // Surface the real DOMException name so failures are diagnosable.
+      toast.error(name ? `${name}: ${msg}` : msg);
     } finally {
       setBusy(null);
     }
@@ -123,8 +186,7 @@ function MoolaHub() {
             </p>
             <div className="grid grid-cols-2 gap-2">
               {MOOLA_PACKS.map((pack) => {
-                const p = prices[pack.id];
-                const priceLabel = p ? `${p.currency} ${p.value}` : zarLabel(pack.zar);
+                const priceLabel = fmtPrice(prices[pack.id]) ?? zarLabel(pack.zar);
                 return (
                   <button
                     key={pack.id}
