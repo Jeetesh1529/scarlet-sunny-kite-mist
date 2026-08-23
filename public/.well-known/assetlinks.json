@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "live.qxio.app",
       "sha256_cert_fingerprints": [
-        "60:B0:F1:DF:6B:BC:25:07:EA:C4:25:B2:EC:E1:97:2B:D3:7A:4A:54:49:9D:9D:9F:6A:48:41:DA:B2:AA:03:44"
+        "60:B0:F1:DF:6B:BC:25:07:EA:C4:25:B2:EC:E1:97:2B:D3:7A:4A:54:49:9D:9D:9F:6A:48:41:DA:B2:AA:03:44",
+        "27:AA:74:04:BF:AF:0E:EC:73:B9:F2:32:4B:8D:61:0E:BE:38:46:D3:A7:61:00:41:D3:77:44:9B:DB:A5:54:5D"
       ]
     }
   }
