@@ -74,77 +74,81 @@ function MoolaHub() {
     };
   }, []);
 
+  // @ts-expect-error - Digital Goods API not in the TS DOM lib.
+  const getBillingSvc = () => window.getDigitalGoodsService(PLAY_BILLING_METHOD);
+
+  // The actual buy: open the Play sheet, verify server-side, consume.
+  async function runPurchase(pack: MoolaPack) {
+    const price = prices[pack.id] ?? { currency: "ZAR", value: String(pack.zar) };
+    const req = new PaymentRequest(
+      [{ supportedMethods: PLAY_BILLING_METHOD, data: { sku: pack.id } } as PaymentMethodData],
+      { total: { label: pack.label, amount: price } },
+    );
+    const resp = await req.show();
+    const det = (resp as unknown as { details?: Record<string, string> }).details ?? {};
+    const purchaseToken = det.token ?? det.purchaseToken ?? "";
+    const r = await verifyMoolaPurchase({ data: { productId: pack.id, purchaseToken } });
+    await resp.complete("success");
+    // Consume client-side too so the consumable never gets stuck "owned".
+    try {
+      const svc = await getBillingSvc();
+      if (svc?.consume && purchaseToken) await svc.consume(purchaseToken);
+    } catch {
+      /* server already consumed */
+    }
+    toast.success(`+${r.credited || pack.moola} Moola`);
+    await refresh();
+    setTx(await listMoola());
+  }
+
   async function buy(pack: MoolaPack) {
     setBusy(pack.id);
     try {
-      // @ts-expect-error - Digital Goods API not in TS DOM lib.
-      const svc = await window.getDigitalGoodsService(PLAY_BILLING_METHOD);
-
-      // A consumable that was bought but never consumed (e.g. a prior attempt
-      // whose verify/consume was interrupted) stays "owned", and Play then
-      // rejects a fresh purchase of the same SKU — which surfaces to the user
-      // as an "Invalid state" error. Before buying, reconcile any stranded copy
-      // of this pack: credit it server-side (idempotent) then consume it so the
-      // slot is free again.
-      if (svc?.listPurchases) {
-        try {
-          const owned: Array<{ itemId: string; purchaseToken: string }> = await svc.listPurchases();
-          const mine = owned.filter((o) => o.itemId === pack.id);
-          if (mine.length) {
-            for (const o of mine) {
-              try {
-                await verifyMoolaPurchase({ data: { productId: o.itemId, purchaseToken: o.purchaseToken } });
-              } catch {
-                /* keep going — still try to consume so the SKU frees up */
-              }
-              if (svc.consume) {
-                try {
-                  await svc.consume(o.purchaseToken);
-                } catch {
-                  /* consume best-effort */
-                }
-              }
-            }
-            // The stranded purchase was the user's Moola — it's now credited.
-            await refresh();
-            setTx(await listMoola());
-            toast.success("Restored a previous top-up — tap again to buy more");
-            return;
-          }
-        } catch {
-          /* listPurchases unsupported or failed — proceed to a normal buy */
-        }
-      }
-
-      const price = prices[pack.id] ?? { currency: "ZAR", value: String(pack.zar) };
-      const req = new PaymentRequest(
-        [{ supportedMethods: PLAY_BILLING_METHOD, data: { sku: pack.id } } as PaymentMethodData],
-        { total: { label: pack.label, amount: price } },
-      );
-      const resp = await req.show();
-      const det = (resp as unknown as { details?: Record<string, string> }).details ?? {};
-      const purchaseToken = det.token ?? det.purchaseToken ?? "";
-      const r = await verifyMoolaPurchase({ data: { productId: pack.id, purchaseToken } });
-      await resp.complete("success");
-      // Consume client-side too, so the consumable never gets stuck "owned"
-      // even if the server-side consume didn't land.
-      if (svc?.consume && purchaseToken) {
-        try {
-          await svc.consume(purchaseToken);
-        } catch {
-          /* already consumed server-side */
-        }
-      }
-      toast.success(`+${r.credited || pack.moola} Moola`);
-      await refresh();
-      setTx(await listMoola());
+      await runPurchase(pack);
     } catch (e: unknown) {
       const err = e as { name?: string; message?: string };
       const name = err?.name ?? "";
       const msg = err?.message || "Purchase failed";
       // User dismissed the Play sheet — stay quiet.
       if (/abort/i.test(name) || /cancel/i.test(msg)) return;
-      // Surface the real DOMException name so failures are diagnosable.
+
+      // A consumable left "owned" by an interrupted earlier attempt makes the
+      // Play sheet reject (typically InvalidStateError / "Invalid state" /
+      // "already owned"). Reconcile it — credit any stranded copy, consume it,
+      // then retry the purchase once.
+      if (/state|already|own|exist|pending/i.test(`${name} ${msg}`)) {
+        try {
+          const svc = await getBillingSvc();
+          const owned: Array<{ itemId: string; purchaseToken: string }> = svc?.listPurchases
+            ? await svc.listPurchases()
+            : [];
+          const mine = owned.filter((o) => o.itemId === pack.id);
+          if (mine.length) {
+            let credited = 0;
+            for (const o of mine) {
+              try {
+                const r = await verifyMoolaPurchase({ data: { productId: o.itemId, purchaseToken: o.purchaseToken } });
+                credited += r.credited || 0;
+              } catch {
+                /* still consume so the SKU frees up */
+              }
+              try {
+                if (svc?.consume) await svc.consume(o.purchaseToken);
+              } catch {
+                /* best effort */
+              }
+            }
+            await refresh();
+            setTx(await listMoola());
+            toast.success(credited > 0 ? `+${credited} Moola` : "Restored your previous top-up");
+            return;
+          }
+        } catch {
+          /* reconcile failed — fall through to showing the original error */
+        }
+      }
+
+      // Surface the real DOMException name so failures stay diagnosable.
       toast.error(name ? `${name}: ${msg}` : msg);
     } finally {
       setBusy(null);
