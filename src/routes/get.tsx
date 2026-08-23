@@ -1,28 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, Copy, Download, Smartphone, TabletSmartphone } from "lucide-react";
+import { Download, Smartphone, TabletSmartphone } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Screen, Titlebar } from "@/components/mxit/chrome";
 import { Button } from "@/components/ui/button";
 import { APP_NAME, APP_TAGLINE, SITE_ORIGIN } from "@/lib/brand";
 import { openPhoneInstall, promptAndroidInstall, subscribeInstallPrompt } from "@/lib/install";
-import { STORE, STORE_SHOTS } from "@/lib/mxit/store";
+import { STORE } from "@/lib/mxit/store";
 import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/get")({ component: GetQxio });
 
-function copy(label: string, text: string) {
-  sfx.tap();
-  void navigator.clipboard.writeText(text).then(
-    () => toast.success(`${label} copied`),
-    () => toast.message(text),
-  );
-}
-
 function GetQxio() {
   const navigate = useNavigate();
-  const [showFull, setShowFull] = useState(false);
-  const [showSafety, setShowSafety] = useState(false);
   const [canInstall, setCanInstall] = useState(false);
   const [androidOpen, setAndroidOpen] = useState(false);
 
@@ -58,9 +48,9 @@ function GetQxio() {
         </div>
 
         <section className="space-y-2 rounded-xl border border-white/15 bg-white/8 p-3">
-          <div className="text-[12px] font-medium uppercase text-white/70">On your phone today</div>
+          <div className="text-[12px] font-medium uppercase text-white/70">Add QXio to your phone</div>
           <p className="text-[13px] text-white/80">
-            Add QXio to the home screen. Full screen, own icon, no browser chrome. This is live now — iPhone and Android.
+            Install QXio on your home screen — full screen, own icon, no browser bar. Works on iPhone and Android.
           </p>
           <div className="grid grid-cols-2 gap-2">
             <Button
@@ -77,10 +67,7 @@ function GetQxio() {
             </Button>
           </div>
           {canInstall && (
-            <Button
-              className="h-11 w-full"
-              onClick={() => void installAndroid()}
-            >
+            <Button className="h-11 w-full" onClick={() => void installAndroid()}>
               <Download className="h-4 w-4" /> Install QXio
             </Button>
           )}
@@ -93,105 +80,6 @@ function GetQxio() {
               <li>QXio lands next to WhatsApp. Open it from there.</li>
             </ol>
           )}
-        </section>
-
-        <section className="space-y-2 rounded-xl border border-amber-300/25 bg-amber-400/10 p-3">
-          <div className="text-[12px] font-medium uppercase text-amber-100">Play Store and App Store</div>
-          <p className="text-[13px] text-white/85">
-            I cannot log into Google Play or App Store Connect from here — those are your accounts. After you Publish QXio
-            and point {SITE_ORIGIN.replace("https://", "")} at it, paste that link plus the copy and screenshots below.
-          </p>
-          <ul className="space-y-1.5 text-[13px] text-white/80">
-            <Row ok label="Privacy, terms, support, delete-account URLs" />
-            <Row ok label="14+ age gate on signup" />
-            <Row ok label="No ads · optional Moola packs via Google Play Billing" />
-            <Row ok label="Listing copy, data-safety answers, screenshots" />
-            <Row ok label="Android package live.qxio.app · iOS bundle live.qxio.app" />
-          </ul>
-          <p className="text-[11px] text-white/55">
-            Google Play developer registration is a one-time fee. Apple Developer Programme is yearly. Play wraps the
-            published site as a Trusted Web Activity. App Store needs the same listing plus your developer login.
-          </p>
-        </section>
-
-        <section className="space-y-2 rounded-xl border border-white/15 bg-white/8 p-3">
-          <div className="text-[12px] font-medium uppercase text-white/70">Store screenshots</div>
-          <p className="text-[12px] text-white/60">Phone 9:16 — drop these into Play Console and App Store Connect.</p>
-          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-            {STORE_SHOTS.map((s) => (
-              <a key={s.src} href={s.src} className="w-24 shrink-0">
-                <img src={s.src} alt={s.label} className="h-44 w-24 rounded-lg border border-white/15 object-cover" />
-                <div className="mt-1 truncate text-center text-[10px] text-white/55">{s.label}</div>
-              </a>
-            ))}
-          </div>
-          <a href="/store/feature.png" className="block">
-            <img src="/store/feature.png" alt="Play feature graphic" className="w-full rounded-lg border border-white/15" />
-            <div className="mt-1 text-[10px] text-white/55">Play feature graphic · 1024×500</div>
-          </a>
-        </section>
-
-        <section className="space-y-2 rounded-xl border border-white/15 bg-white/8 p-3">
-          <div className="flex items-center justify-between">
-            <div className="text-[12px] font-medium uppercase text-white/70">Listing copy</div>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 text-[11px] text-cyan-200"
-              onClick={() => copy("Listing", `${STORE.name}\n${STORE.subtitle}\n${STORE.short}\n\n${STORE.full}`)}
-            >
-              <Copy className="h-3.5 w-3.5" /> Copy all
-            </button>
-          </div>
-          <Field label="Name" value={STORE.name} />
-          <Field label="Subtitle" value={STORE.subtitle} />
-          <Field label="Short" value={STORE.short} />
-          <div>
-            <button type="button" className="text-[11px] text-cyan-200 underline" onClick={() => setShowFull((v) => !v)}>
-              {showFull ? "Hide description" : "Show full description"}
-            </button>
-            {showFull && <p className="mt-2 whitespace-pre-wrap text-[12px] text-white/75">{STORE.full}</p>}
-          </div>
-          <Field label="Play category" value={STORE.categoryPlay} />
-          <Field label="App Store category" value={STORE.categoryIos} />
-          <Field label="Age" value={STORE.age} />
-          <Field label="In-app purchases" value={STORE.iap} />
-          <Field label="Ads" value={STORE.ads} />
-          <Field label="Android package" value={STORE.packageAndroid} />
-          <Field label="iOS bundle ID" value={STORE.bundleIos} />
-        </section>
-
-        <section className="space-y-2 rounded-xl border border-white/15 bg-white/8 p-3">
-          <div className="flex items-center justify-between">
-            <div className="text-[12px] font-medium uppercase text-white/70">Play data safety</div>
-            <button
-              type="button"
-              className="text-[11px] text-cyan-200"
-              onClick={() => copy("Data safety", STORE.dataSafety.join("\n"))}
-            >
-              <Copy className="inline h-3.5 w-3.5" /> Copy
-            </button>
-          </div>
-          <button type="button" className="text-[11px] text-cyan-200 underline" onClick={() => setShowSafety((v) => !v)}>
-            {showSafety ? "Hide answers" : "Show answers for the form"}
-          </button>
-          {showSafety && (
-            <ul className="list-disc space-y-1 pl-4 text-[12px] text-white/75">
-              {STORE.dataSafety.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-          )}
-          <div className="pt-1">
-            <div className="text-[10px] uppercase tracking-wide text-white/45">Review notes</div>
-            <p className="text-[12px] text-white/75">{STORE.reviewNotes}</p>
-            <button
-              type="button"
-              className="mt-1 text-[11px] text-cyan-200"
-              onClick={() => copy("Review notes", STORE.reviewNotes)}
-            >
-              Copy notes
-            </button>
-          </div>
         </section>
 
         <section className="space-y-1 rounded-xl border border-white/15 bg-white/8 p-3 text-[13px]">
@@ -214,28 +102,5 @@ function GetQxio() {
         </Button>
       </div>
     </Screen>
-  );
-}
-
-function Row({ ok, label }: { ok: boolean; label: string }) {
-  return (
-    <li className="flex items-start gap-2">
-      <Check className={`mt-0.5 h-4 w-4 shrink-0 ${ok ? "text-emerald-300" : "text-white/30"}`} />
-      <span>{label}</span>
-    </li>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start justify-between gap-2">
-      <div>
-        <div className="text-[10px] uppercase tracking-wide text-white/45">{label}</div>
-        <div className="text-[13px] text-white/90">{value}</div>
-      </div>
-      <button type="button" aria-label={`Copy ${label}`} onClick={() => copy(label, value)}>
-        <Copy className="h-3.5 w-3.5 text-white/50" />
-      </button>
-    </div>
   );
 }
