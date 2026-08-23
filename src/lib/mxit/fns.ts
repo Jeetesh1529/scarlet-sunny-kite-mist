@@ -24,6 +24,7 @@ import { RESERVED_QXIO_IDS } from "./zones";
 import { clipSms, SMS_LIMIT, toE164 } from "@/lib/sms";
 import { clipGprs, GPRS_LIMIT } from "@/lib/gprs";
 import { MSG_COST_MOOLA, MOOLA_EXTRAS } from "./rates";
+import { MOOLA_PACK_BY_ID } from "./moola-packs";
 import { sendSmsOut, smsOutboundEnabled } from "./sms-out";
 let seedJob: Promise<void> | null = null;
 const onboarded = new Map<string, Promise<void>>();
@@ -1436,6 +1437,121 @@ export const listMoola = createServerFn({ method: "GET" })
       where user_id = ${context.userId}
       order by created_at desc limit 40
     `;
+  });
+
+// ---------------------------------------------------------------------------
+// Paid Moola packs — Google Play Billing verification.
+//
+// The client (installed Play/TWA app only) completes a Play Billing purchase
+// via the Digital Goods + Payment Request APIs, then sends us {productId,
+// purchaseToken}. We verify that token with the Google Play Developer API,
+// credit Moola exactly once (idempotent on purchase_token), and consume the
+// item so it can be bought again.
+//
+// Safe-by-default: with no service-account env configured, googlePlayToken()
+// returns null and we credit nothing. So this endpoint is inert (never grants
+// free Moola) until the owner wires up the service account + Play products.
+// ---------------------------------------------------------------------------
+
+type PlayPurchaseInfo = {
+  purchaseState?: number; // 0 = purchased, 1 = canceled, 2 = pending
+  consumptionState?: number;
+  acknowledgementState?: number;
+  orderId?: string;
+};
+
+async function googlePlayToken(): Promise<string | null> {
+  const email = process.env.GOOGLE_PLAY_SA_EMAIL;
+  const rawKey = process.env.GOOGLE_PLAY_SA_KEY;
+  if (!email || !rawKey) return null;
+  const key = rawKey.replace(/\\n/g, "\n");
+  const { createSign } = await import("node:crypto");
+  const now = Math.floor(Date.now() / 1000);
+  const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
+  const unsigned = `${b64({ alg: "RS256", typ: "JWT" })}.${b64({
+    iss: email,
+    scope: "https://www.googleapis.com/auth/androidpublisher",
+    aud: "https://oauth2.googleapis.com/token",
+    iat: now,
+    exp: now + 3600,
+  })}`;
+  const signer = createSign("RSA-SHA256");
+  signer.update(unsigned);
+  const assertion = `${unsigned}.${signer.sign(key).toString("base64url")}`;
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion,
+    }),
+  });
+  if (!res.ok) throw new Error("Google auth failed");
+  const j = (await res.json()) as { access_token?: string };
+  return j.access_token ?? null;
+}
+
+export const verifyMoolaPurchase = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator((d: { productId: string; purchaseToken: string }) => d)
+  .handler(async ({ context, data }) => {
+    const pack = MOOLA_PACK_BY_ID[data.productId];
+    if (!pack) throw new Error("Unknown Moola pack");
+    if (!data.purchaseToken) throw new Error("Missing purchase token");
+    const sql = await getSql();
+
+    // Idempotency / replay: already-credited token -> return current balance.
+    const seen = await sql<{ purchase_token: string }>`
+      select purchase_token from purchases where purchase_token = ${data.purchaseToken}
+    `;
+    if (seen.length) {
+      const rows = await sql<Profile>`select moola from profiles where id = ${context.userId}`;
+      return { already: true as const, moola: rows[0]?.moola ?? 0, credited: 0 };
+    }
+
+    const pkg = process.env.GOOGLE_PLAY_PACKAGE || "live.qxio.app";
+    const token = await googlePlayToken();
+    if (!token) throw new Error("Purchases are not enabled yet");
+
+    const base =
+      `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${encodeURIComponent(pkg)}` +
+      `/purchases/products/${encodeURIComponent(data.productId)}/tokens/${encodeURIComponent(data.purchaseToken)}`;
+    const vres = await fetch(base, { headers: { authorization: `Bearer ${token}` } });
+    if (!vres.ok) throw new Error("Could not verify purchase");
+    const info = (await vres.json()) as PlayPurchaseInfo;
+    if (info.purchaseState !== 0) throw new Error("Purchase not completed");
+
+    // Race-safe claim: only the first writer of this token credits.
+    const claim = await sql<{ purchase_token: string }>`
+      insert into purchases (purchase_token, user_id, product_id, moola, order_id)
+      values (${data.purchaseToken}, ${context.userId}, ${pack.id}, ${pack.moola}, ${info.orderId ?? null})
+      on conflict (purchase_token) do nothing
+      returning purchase_token
+    `;
+    if (!claim.length) {
+      const rows = await sql<Profile>`select moola from profiles where id = ${context.userId}`;
+      return { already: true as const, moola: rows[0]?.moola ?? 0, credited: 0 };
+    }
+
+    await sql`update profiles set moola = moola + ${pack.moola} where id = ${context.userId}`;
+    await sql`
+      insert into moola_tx (id, user_id, amount, reason)
+      values (${nid()}, ${context.userId}, ${pack.moola}, ${`Moola pack · R${pack.zar}`})
+    `;
+
+    // Consume the entitlement so it can be repurchased (best-effort; the ledger
+    // is authoritative and the token is already recorded).
+    try {
+      await fetch(`${base}:consume`, {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` },
+      });
+    } catch {
+      /* ignore */
+    }
+
+    const rows = await sql<Profile>`select moola from profiles where id = ${context.userId}`;
+    return { already: false as const, moola: rows[0]?.moola ?? 0, credited: pack.moola };
   });
 
 export const listConfessions = createServerFn({ method: "GET" })

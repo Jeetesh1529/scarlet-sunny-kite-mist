@@ -6,7 +6,7 @@ export const STORE = {
 
 Chat send and receive is free — QXio adds no per-message charge, just a little mobile data. "Lean" mode keeps each message text-only and tiny to save data. No data at all? The SMS fallback sends over your phone's Messages at your network's SMS rate (~80c).
 
-Moola is earned in-app (welcome bonus, daily claim, streaks) and spends on extras like Skinz and Emoticards. Moola is not sold for real money and cannot be cashed out.
+Moola is the in-app currency for extras like Skinz and Emoticards. Earn it free (welcome bonus, daily claim, streaks, gifts) or top up with optional Moola packs, billed through Google Play. Moola has no cash value and can't be cashed out. Chat, rooms and games never cost Moola.
 
 14 or older. Block, report, nickname, copy / reply / delete. Your QXio ID is unique.
 
@@ -14,11 +14,11 @@ Games: Moonbase, Chess, Connect 4, Tic-Tac-Toe, Skip-Bo.`,
   categoryPlay: "Communication",
   categoryIos: "Social Networking",
   age: "14+",
-  iap: "None — Moola is earned, never sold",
+  iap: "Yes — consumable Moola packs, R15–R199 (Google Play Billing). Moola is also earned free and can't be cashed out.",
   ads: "None",
   keywords: "chat, messenger, south africa, rooms, moola, gprs, games",
-  packageAndroid: "za.qxio.app",
-  bundleIos: "za.qxio.app",
+  packageAndroid: "live.qxio.app",
+  bundleIos: "live.qxio.app",
   privacyPath: "/legal/privacy",
   termsPath: "/legal/terms",
   supportPath: "/legal/support",
@@ -29,10 +29,11 @@ Games: Moonbase, Chess, Connect 4, Tic-Tac-Toe, Skip-Bo.`,
     "Approx location: zone you pick (Cape Town / Jozi / Durbs), not GPS.",
     "Optional phone number: only if you turn on last-resort SMS.",
     "App activity: contacts, rooms, games, Moola ledger.",
+    "Purchases: Moola packs are billed by Google Play — QXio never sees your card. We store the pack bought and the Play order id, linked to your account.",
     "Security: encrypted in transit (HTTPS). Delete account wipes the profile.",
   ],
   reviewNotes:
-    "Demo: create an account (email + password or Google/X), pick a unique QXio ID, confirm 14+. JADE CT is a seeded contact — long-press to chat or Challenge. Rooms under QX Post → Chat Rooms. Account deletion: Settings → Delete my QXio ID, and https://qxio.live/legal/delete. No IAP. No ads. Moola is earned only.",
+    "Demo: create an account (email + password or Google/X), pick a unique QXio ID, confirm 14+. JADE CT is a seeded contact — long-press to chat or Challenge. Rooms under QX Post → Chat Rooms. Account deletion: Settings → Delete my QXio ID, and https://qxio.live/legal/delete. No ads. In-app purchases: consumable Moola packs (Moola Hub) via Google Play Billing; Moola is also earned free and never cashed out. Chat, rooms and games are free.",
   site: "https://qxio.live",
 } as const;
 

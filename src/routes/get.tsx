@@ -104,9 +104,9 @@ function GetQxio() {
           <ul className="space-y-1.5 text-[13px] text-white/80">
             <Row ok label="Privacy, terms, support, delete-account URLs" />
             <Row ok label="14+ age gate on signup" />
-            <Row ok label="No ads, no paid Moola" />
+            <Row ok label="No ads · optional Moola packs via Google Play Billing" />
             <Row ok label="Listing copy, data-safety answers, screenshots" />
-            <Row ok label="Android package za.qxio.app · iOS bundle za.qxio.app" />
+            <Row ok label="Android package live.qxio.app · iOS bundle live.qxio.app" />
           </ul>
           <p className="text-[11px] text-white/55">
             Google Play developer registration is a one-time fee. Apple Developer Programme is yearly. Play wraps the

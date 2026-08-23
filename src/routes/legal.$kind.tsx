@@ -88,7 +88,10 @@ function Terms() {
         normal SMS tariff (~80c).
       </p>
       <p>
-        {STORE.iap}. Moola cannot be exchanged for cash. Games in QX Post are free.
+        Moola is an in-app currency for extras like Skinz and Emoticards. You earn it free (welcome bonus, daily
+        claim, streaks, gifts) and can optionally top up with Moola packs in the Android app, billed through Google
+        Play. Moola is consumable, has no cash value, cannot be exchanged for cash or transferred off {APP_NAME}, and
+        is non-refundable once spent except as required by law or Google Play policy. Games in QX Post are free.
       </p>
       <p>
         {APP_NAME} is an original product provided as-is. It is not affiliated with, endorsed by, or a continuation of
@@ -167,7 +170,7 @@ function Support() {
         <li>Privacy or account: Settings, or <a className="underline" href="/legal/privacy">Privacy</a> and <a className="underline" href="/legal/delete">Delete account</a>.</li>
         <li>Install on a phone: <a className="underline" href="/get">Get QXio</a> — Add to Home Screen today. Store listings use the same app after you publish.</li>
       </ul>
-      <p className="text-white/60">No ads. No in-app purchases. {STORE.age}.</p>
+      <p className="text-white/60">No ads. Chat, rooms and games are free. Optional Moola packs via Google Play. {STORE.age}.</p>
     </>
   );
 }
