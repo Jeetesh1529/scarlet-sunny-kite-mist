@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "live.qxio.app",
+      "sha256_cert_fingerprints": [
+        "60:B0:F1:DF:6B:BC:25:07:EA:C4:25:B2:EC:E1:97:2B:D3:7A:4A:54:49:9D:9D:9F:6A:48:41:DA:B2:AA:03:44"
+      ]
+    }
+  }
+]
